@@ -1,0 +1,161 @@
+--- !ruby/object:Gem::Specification 
+name: chef-gelf
+version: !ruby/object:Gem::Version 
+  prerelease: 
+  version: 1.0.0
+platform: ruby
+authors: 
+- Jon Wood
+autorequire: 
+bindir: bin
+cert_chain: []
+
+date: 2011-07-06 00:00:00 Z
+dependencies: 
+- !ruby/object:Gem::Dependency 
+  name: gelf
+  prerelease: false
+  requirement: &id001 !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: "0"
+  type: :runtime
+  version_requirements: *id001
+- !ruby/object:Gem::Dependency 
+  name: chef
+  prerelease: false
+  requirement: &id002 !ruby/object:Gem::Requirement 
+    none: false
+    requirements: 
+    - - ">="
+      - !ruby/object:Gem::Version 
+        version: "0"
+  type: :runtime
+  version_requirements: *id002
+description: |
+  = DESCRIPTION:
+  
+  Provides a Chef handler which can report run status, including any changes that were made, to a Graylog2 server. In the case of failed runs a backtrace will be included in the details reported.
+  
+  = REQUIREMENTS:
+  
+  * A Graylog2 server running somewhere.
+  
+  = USAGE:
+  
+  This example makes of the chef_handler cookbook, place some thing like this in cookbooks/chef_handler/recipes/gelf.rb and add it to your run list. It also assumes your Graylog2 server has set the attribute rsyslog_server to true.
+  
+    log_server = search(:node, "rsyslog_server:true").first
+  
+    if log_server
+      include_recipe "chef_handler::default"
+  
+      gem_package "chef-gelf" do
+        action :nothing
+      end.run_action(:install)
+      
+      # Make sure the newly installed Gem is loaded.
+      Gem.clear_paths
+      require 'chef/gelf'
+      
+      chef_handler "Chef::GELF::Handler" do
+        source "chef/gelf"
+        arguments({
+          :server => log_server['fqdn']
+        })
+  
+        supports :exception => true, :report => true
+      end.run_action(:enable)
+    end
+  
+  Arguments take the form of an options hash, with the following options:
+  
+  * :server                 - The server to send messages to.
+  * :port (12201)           - The port to send on.
+  * :facility (chef-client) - The facility to report under.
+  * :host (node.fqdn)       - The host to report messages as coming from.
+  * :blacklist ({})         - A hash of cookbooks, resources and actions to ignore in the change list.
+  
+  = BLACKLISTING:
+  
+  Some resources report themselves as having updated on every run even if nothing changed, or are just things you don't care about. To reduce the amount of noise in your logs these can be ignored by providing a blacklist. In this example we don't want to be told about the GELF handler being activated:
+  
+      chef_handler "Chef::GELF::Handler" do
+        source "chef/gelf"
+        arguments({
+          :server => log_server['fqdn'],
+          :blacklist => {
+            "chef_handler" => {
+              "chef_handler" => [ "nothing", "enable" ]
+            }
+          }
+        })
+  
+        supports :exception => true, :report => true
+      end.run_action(:enable)
+  
+  = LICENSE and AUTHOR:
+  
+  Author:: Jon Wood (<jon@blankpad.net>)
+  Copyright:: 2011, Blank Pad Development
+  
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+email: 
+- jon@blankpad.net
+executables: []
+
+extensions: []
+
+extra_rdoc_files: []
+
+files: 
+- .gitignore
+- Gemfile
+- README.rdoc
+- Rakefile
+- chef-gelf.gemspec
+- lib/chef/gelf.rb
+- lib/chef/gelf/version.rb
+homepage: https://github.com/jellybob/chef-gelf
+licenses: []
+
+post_install_message: 
+rdoc_options: []
+
+require_paths: 
+- lib
+required_ruby_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+required_rubygems_version: !ruby/object:Gem::Requirement 
+  none: false
+  requirements: 
+  - - ">="
+    - !ruby/object:Gem::Version 
+      version: "0"
+requirements: []
+
+rubyforge_project: chef-gelf
+rubygems_version: 1.7.0
+signing_key: 
+specification_version: 3
+summary: Provides a Chef handler which reports run failures and changes to a Graylog2 server.
+test_files: []
+
+has_rdoc: 
