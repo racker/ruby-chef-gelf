@@ -1,5 +1,5 @@
-ruby-chef-gelf (1.0.0-1); urgency=low
+ruby-chef-gelf (1.0.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)
+  * Initial release
 
  -- Brandon Philips <brandon.philips@rackspace.com>  Tue, 13 Dec 2011 21:51:01 +0000
